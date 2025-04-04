@@ -2,7 +2,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 import os
 
-TOKEN = os.getenv("TOKEN")
+#TOKEN = os.getenv("TOKEN")
 
 
 # /start command
