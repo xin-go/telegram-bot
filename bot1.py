@@ -1,7 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters ,Application
 import os, asyncio
-TOKEN = os.getenv("TOKEN")
+#TOKEN = os.getenv("TOKEN")
 
 
 
