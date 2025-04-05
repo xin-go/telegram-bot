@@ -34,11 +34,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
     await asyncio.sleep(0.5)
     await update.message.reply_text("welcome to sayebzeby-bot",parse_mode='Markdown')
-
-    await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
-    await asyncio.sleep(0.5)
-    await update.message.reply_text("try to use /help",parse_mode='Markdown')
-
+    
 # /stop command
 async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"Ya {update.effective_user.first_name} Sayeb zeby !")
