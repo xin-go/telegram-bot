@@ -1,7 +1,8 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters ,Application
-import asyncio
-TOKEN = "7988048135:AAFIbWSfUZ9qFZnZJb43Wu7Ah2vCtGl4kB4"
+import os
+TOKEN = os.getenv("TOKEN")
+
 
 
 # /start command
