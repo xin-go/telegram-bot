@@ -1,11 +1,22 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters ,Application
-import asyncio , os
-#TOKEN = os.getenv("TOKEN")
+import asyncio
+TOKEN = "7988048135:AAFIbWSfUZ9qFZnZJb43Wu7Ah2vCtGl4kB4"
 
 
 # /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+    chat_id = update.effective_chat.id
+
+    # Notify the admin
+    msg = f"📢 New user started the bot:\n"
+    msg += f"👤 Name: {user.full_name}\n"
+    msg += f"🆔 ID: {user.id}\n"
+    if user.username:
+        msg += f"🔗 Username: @{user.username}"
+
+    await context.bot.send_message(chat_id=6424248902, text=msg)
     
 # Edit message to simulate animation
     msg: Message = await update.message.reply_text("Loading.")
@@ -14,7 +25,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await asyncio.sleep(1)
 
 
-    await msg.edit_text("✅")
+    await msg.edit_text("🌈")
     await asyncio.sleep(0.5)
 
     await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
