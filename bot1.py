@@ -1,7 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters ,Application
 import os, asyncio, sqlite3
-TOKEN = os.getenv("TOKEN")
+#TOKEN = os.getenv("TOKEN")
 
 # /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
