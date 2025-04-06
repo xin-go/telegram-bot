@@ -24,7 +24,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await loading_msg.edit_text(f"Loading{dots}")
         await asyncio.sleep(1)
 
-    await loading_msg.edit_text("⚽️")
+    await loading_msg.edit_text("🔞")
     await asyncio.sleep(1)
 
     await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
