@@ -71,11 +71,6 @@ async def get_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
     age = int(age_text)
     context.user_data["age"] = age  # Store the age
 
-    # Validate the age range
-    if age < 15 or age > 50:
-        await update.message.reply_text("Please enter a realistic age between 15 and 50.")
-        return "AGE"
-
     # Age is valid, proceed to next step
     await update.message.reply_text(f"Your age has been recorded as {age}.\n Try to use /help.")
     return "NEXT_STEP"
