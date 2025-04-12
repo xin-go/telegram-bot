@@ -1,4 +1,8 @@
 # Xin-go Telegram-Bot
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Message, InputMediaPhoto, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters, ConversationHandler
+import os, asyncio, sqlite3, random
+
 TOKEN = os.getenv("TOKEN")
 AGE, CAPTCHA = range(2)
 
