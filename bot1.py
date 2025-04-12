@@ -1,10 +1,35 @@
 # Xin-go Telegram-Bot
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Message, InputMediaPhoto
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
+from functools import wraps
 import os, asyncio, sqlite3, random
 
 #TOKEN = os.getenv("TOKEN")
 user_ages = {}
+
+
+def age_required(func):
+    @wraps(func)
+    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        # Get the age from the user's context data
+        user_age = context.user_data.get('age')
+        
+        # Check if age is stored and valid
+        if user_age is None:
+            await update.message.reply_text("Please enter your age first using /start.")
+            return
+        
+        if user_age < 18:
+            # User is under 18, show an age-restricted message
+            keyboard = [[InlineKeyboardButton("🔙 Back", callback_data='wack')]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await update.message.reply_text("Sorry, you must be 18 or older to use this feature.", reply_markup=reply_markup)
+            return
+
+        # If age is valid, proceed with the command
+        return await func(update, context)
+    
+    return wrapper
 
 # START FUNCTION
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -35,7 +60,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("HOW OLD ARE YOU?")
     return "AGE"
 
-# AGE VALIDATION FUNCTION
+# /get age
 async def get_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
     age_text = update.message.text
 
@@ -44,24 +69,16 @@ async def get_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return "AGE"
 
     age = int(age_text)
-    context.user_data["age"] = age
-    # If age is out of realistic bounds
-    if age <= 14 or age >= 50:
-        await update.message.reply_text("Please enter a realistic age.")
+    context.user_data["age"] = age  # Store the age
+
+    # Validate the age range
+    if age < 15 or age > 50:
+        await update.message.reply_text("Please enter a realistic age between 15 and 50.")
         return "AGE"
 
-    # If the user is under 18, restrict access
-    if age < 18:
-        await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
-        keyboard = [[InlineKeyboardButton("🔙 Back", callback_data='wack')]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        await update.message.reply_text("Sorry, you must be 18 or older to use this bot.\nPlease come back when you're 18.", reply_markup=reply_markup)
-    else:
-        await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
-        await asyncio.sleep(0.5)
-        await update.message.reply_text("Welcome to Sayeb Zeby Bot!", parse_mode='Markdown')
-        await asyncio.sleep(0.5)
-        await update.message.reply_text("Try using /help", parse_mode='Markdown')
+    # Age is valid, proceed to next step
+    await update.message.reply_text(f"Your age has been recorded as {age}.\n Try to use /help.")
+    return "NEXT_STEP"
 
 # Age check function
 async def check_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -72,9 +89,8 @@ async def check_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return True
 
 # /random_image command
+@age_required
 async def random_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not await check_age(update, context):
-        return
     folder_path = "image"
     files = [f for f in os.listdir(folder_path) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
 
@@ -89,25 +105,19 @@ async def random_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_photo(photo=img, caption=f"🎲 Random image: {random_file}")
 
 # /image command
+@age_required
 async def image(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not await check_age(update, context):
-        return
-
     with open('image/terr.jpg', 'rb') as image_file:
         await update.message.reply_photo(photo=image_file)
 
 # /stop command
+@age_required
 async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not await check_age(update, context):
-        return
-
-    await update.message.reply_text(f"Ya {update.effective_user.first_name} Sayeb zeby !")
+    await update.message.reply_text(f"Ya {update.effective_user.first_name} Sayeb zeby!")
 
 # /help command
+@age_required
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not await check_age(update, context):
-        return
-
     help_text = (
         "🛠 Available commands:\n"
         "/start - Greet\n"
@@ -118,10 +128,8 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(help_text)
 
 # /menu command
+@age_required
 async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not await check_age(update, context):
-        return
-
     keyboard = [
         [InlineKeyboardButton("ℹ️ About", callback_data='about'),
          InlineKeyboardButton("📜 Terms", callback_data='terms')]
@@ -181,4 +189,3 @@ app.add_handler(CommandHandler("random", random_image))
 
 # Start bot
 app.run_polling()
-
