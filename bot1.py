@@ -1,5 +1,5 @@
 # Xin-go Telegram-Bot
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Message ,InputMediaPhoto
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Message, InputMediaPhoto
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 import os, asyncio, sqlite3, random
 
@@ -44,8 +44,7 @@ async def get_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return "AGE"
 
     age = int(age_text)
-    context.user_data["age"] = age  # <-- Move this after validation
-
+    context.user_data["age"] = age
     # If age is out of realistic bounds
     if age <= 14 or age >= 50:
         await update.message.reply_text("Please enter a realistic age.")
@@ -53,7 +52,7 @@ async def get_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # If the user is under 18, restrict access
     if age < 18:
-        await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")      
+        await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
         keyboard = [[InlineKeyboardButton("🔙 Back", callback_data='wack')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text("Sorry, you must be 18 or older to use this bot.\nPlease come back when you're 18.", reply_markup=reply_markup)
@@ -64,22 +63,24 @@ async def get_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await asyncio.sleep(0.5)
         await update.message.reply_text("Try using /help", parse_mode='Markdown')
 
-# /random_image command
-async def random_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    age = update.effective_user.id
-
-    # Check if the user is under 18
+# Age check function
+async def check_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
     age = context.user_data.get("age")
     if age is None or age < 18:
         await update.message.reply_text("Sorry, you must be 18 or older to use this menu.")
-        return
-    else :
-        folder_path = "image"
-        files = [f for f in os.listdir(folder_path) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
+        return False
+    return True
 
-        if not files:
-            await update.message.reply_text("No images found in the folder.")
-            return
+# /random_image command
+async def random_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not await check_age(update, context):
+        return
+    folder_path = "image"
+    files = [f for f in os.listdir(folder_path) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
+
+    if not files:
+        await update.message.reply_text("No images found in the folder.")
+        return
 
     random_file = random.choice(files)
     file_path = os.path.join(folder_path, random_file)
@@ -89,74 +90,53 @@ async def random_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # /image command
 async def image(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    age = update.effective_user.id
-
-    # Check if the user is under 18
-    age = context.user_data.get("age")
-    if age is None or age < 18:
-        await update.message.reply_text("Sorry, you must be 18 or older to use this menu.")
+    if not await check_age(update, context):
         return
-    else :
-        with open('image/terr.jpg', 'rb') as image_file:
-            await update.message.reply_photo(photo=image_file)
+
+    with open('image/terr.jpg', 'rb') as image_file:
+        await update.message.reply_photo(photo=image_file)
 
 # /stop command
 async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    age = update.effective_user.id
-
-    # Check if the user is under 18
-    age = context.user_data.get("age")
-    if age is None or age < 18:
-        await update.message.reply_text("Sorry, you must be 18 or older to use this menu.")
+    if not await check_age(update, context):
         return
-    else :
-        await update.message.reply_text(f"Ya {update.effective_user.first_name} Sayeb zeby !")
+
+    await update.message.reply_text(f"Ya {update.effective_user.first_name} Sayeb zeby !")
 
 # /help command
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    age = update.effective_user.id
-
-    # Check if the user is under 18
-    age = context.user_data.get("age")
-    if age is None or age < 18:
-        await update.message.reply_text("Sorry, you must be 18 or older to use this menu.")
+    if not await check_age(update, context):
         return
-    else :
-        help_text = (
-            "🛠 Available commands:\n"
-            "/start - Greet\n"
-            "/menu - menu\n"
-            "/random - random_image\n"
-            "/help - Show help message\n"
-        )
+
+    help_text = (
+        "🛠 Available commands:\n"
+        "/start - Greet\n"
+        "/menu - menu\n"
+        "/random - random_image\n"
+        "/help - Show help message\n"
+    )
     await update.message.reply_text(help_text)
 
 # /menu command
 async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    age = update.effective_user.id
-
-    # Check if the user is under 18
-    age = context.user_data.get("age")
-    if age is None or age < 18:
-        await update.message.reply_text("Sorry, you must be 18 or older to use this menu.")
+    if not await check_age(update, context):
         return
-    else :
-        keyboard = [
+
+    keyboard = [
         [InlineKeyboardButton("ℹ️ About", callback_data='about'),
          InlineKeyboardButton("📜 Terms", callback_data='terms')]
-        ]
-        await update.message.reply_text(
+    ]
+    await update.message.reply_text(
         "*Welcome to the menu*\nChoose below:",
-        reply_markup = InlineKeyboardMarkup(keyboard),
+        reply_markup=InlineKeyboardMarkup(keyboard),
         parse_mode='Markdown'
-        )
-
+    )
 
 # Handle button clicks
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
-        [InlineKeyboardButton("🌐 𝐅𝐀𝐂𝐂𝐎𝐎𝐊", url="https://www.facebook.com")],
-        [InlineKeyboardButton("📸 𝐈𝐍𝐒𝐓𝐀𝐆𝐑𝐀𝐌", url="https://www.instagram.com")],
+        [InlineKeyboardButton("🌐 𝐅𝐀𝐂𝐂𝐎𝐎𝐊", url="https://www.facebook.com/AlouiAhmed.5721")],
+        [InlineKeyboardButton("📸 𝐈𝐍𝐒𝐓𝐀𝐆𝐑𝐀𝐌", url="https://www.instagram.com/aloui_v1.0/")],
         [InlineKeyboardButton("💻 𝐆𝐈𝐓𝐇𝐔𝐁", url="https://github.com/xin-go")]
     ]
     
@@ -199,6 +179,6 @@ app.add_handler(CommandHandler("stop", stop))
 app.add_handler(CommandHandler("image", image))
 app.add_handler(CommandHandler("random", random_image))
 
-
 # Start bot
 app.run_polling()
+
