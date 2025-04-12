@@ -155,8 +155,8 @@ async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Handle button clicks
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
-        [InlineKeyboardButton("🌐 𝐅𝐀𝐂𝐂𝐎𝐎𝐊", url="https://www.facebook.com/AlouiAhmed.5721")],
-        [InlineKeyboardButton("📸 𝐈𝐍𝐒𝐓𝐀𝐆𝐑𝐀𝐌", url="https://www.instagram.com/aloui_v1.0/")],
+        [InlineKeyboardButton("🌐 𝐅𝐀𝐂𝐂𝐎𝐎𝐊", url="https://www.facebook.com")],
+        [InlineKeyboardButton("📸 𝐈𝐍𝐒𝐓𝐀𝐆𝐑𝐀𝐌", url="https://www.instagram.com")],
         [InlineKeyboardButton("💻 𝐆𝐈𝐓𝐇𝐔𝐁", url="https://github.com/xin-go")]
     ]
     
