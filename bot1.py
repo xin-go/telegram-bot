@@ -2,7 +2,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters ,Application
 import os, asyncio, sqlite3
 
-TOKEN = os.getenv("TOKEN")
+#TOKEN = os.getenv("TOKEN")
 user_ages = {}
 
 # START FUNCTION
