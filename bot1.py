@@ -1,8 +1,9 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Message
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters ,Application
-import os, asyncio, sqlite3
+# Xin-go Telegram-Bot
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Message ,InputMediaPhoto
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
+import os, asyncio, sqlite3, random
 
-#TOKEN = os.getenv("TOKEN")
+TOKEN = os.getenv("TOKEN")
 user_ages = {}
 
 # START FUNCTION
@@ -36,7 +37,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # AGE VALIDATION FUNCTION
 async def get_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    age_text = update.message.text  # <-- You forgot this line
+    age_text = update.message.text
 
     if not age_text.isdigit():
         await update.message.reply_text("Please enter a valid number for your age.")
@@ -46,7 +47,7 @@ async def get_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["age"] = age  # <-- Move this after validation
 
     # If age is out of realistic bounds
-    if age <= 16 or age >= 50:
+    if age <= 14 or age >= 50:
         await update.message.reply_text("Please enter a realistic age.")
         return "AGE"
 
@@ -63,19 +64,71 @@ async def get_age(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await asyncio.sleep(0.5)
         await update.message.reply_text("Try using /help", parse_mode='Markdown')
 
+# /random_image command
+async def random_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    age = update.effective_user.id
+
+    # Check if the user is under 18
+    age = context.user_data.get("age")
+    if age is None or age < 18:
+        await update.message.reply_text("Sorry, you must be 18 or older to use this menu.")
+        return
+    else :
+        folder_path = "image"
+        files = [f for f in os.listdir(folder_path) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
+
+        if not files:
+            await update.message.reply_text("No images found in the folder.")
+            return
+
+    random_file = random.choice(files)
+    file_path = os.path.join(folder_path, random_file)
+
+    with open(file_path, "rb") as img:
+        await update.message.reply_photo(photo=img, caption=f"🎲 Random image: {random_file}")
+
+# /image command
+async def image(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    age = update.effective_user.id
+
+    # Check if the user is under 18
+    age = context.user_data.get("age")
+    if age is None or age < 18:
+        await update.message.reply_text("Sorry, you must be 18 or older to use this menu.")
+        return
+    else :
+        with open('image/terr.jpg', 'rb') as image_file:
+            await update.message.reply_photo(photo=image_file)
+
 # /stop command
 async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(f"Ya {update.effective_user.first_name} Sayeb zeby !")
+    age = update.effective_user.id
+
+    # Check if the user is under 18
+    age = context.user_data.get("age")
+    if age is None or age < 18:
+        await update.message.reply_text("Sorry, you must be 18 or older to use this menu.")
+        return
+    else :
+        await update.message.reply_text(f"Ya {update.effective_user.first_name} Sayeb zeby !")
 
 # /help command
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    help_text = (
-        "🛠 Available commands:\n"
-        "/start - Greet\n"
-        "/menu - menu\n"
-        "/help - Show help message\n"
-        "Or just type anything and I’ll echo it back!"
-    )
+    age = update.effective_user.id
+
+    # Check if the user is under 18
+    age = context.user_data.get("age")
+    if age is None or age < 18:
+        await update.message.reply_text("Sorry, you must be 18 or older to use this menu.")
+        return
+    else :
+        help_text = (
+            "🛠 Available commands:\n"
+            "/start - Greet\n"
+            "/menu - menu\n"
+            "/random - random_image\n"
+            "/help - Show help message\n"
+        )
     await update.message.reply_text(help_text)
 
 # /menu command
@@ -137,12 +190,15 @@ app = ApplicationBuilder().token(TOKEN).build()
 
 # Add handlers
 app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("stop", stop))
 app.add_handler(CommandHandler("help", help_command))
 app.add_handler(CommandHandler("menu", menu))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, get_age))
 app.add_handler(CallbackQueryHandler(button_handler))
 
+app.add_handler(CommandHandler("stop", stop))
+app.add_handler(CommandHandler("image", image))
+app.add_handler(CommandHandler("random", random_image))
+
+
 # Start bot
 app.run_polling()
-
