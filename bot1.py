@@ -4,7 +4,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandle
 from functools import wraps
 import os, asyncio, sqlite3, random
 
-#TOKEN = os.getenv("TOKEN")
+TOKEN = os.getenv("TOKEN")
 user_ages = {}
 
 
